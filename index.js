@@ -32,13 +32,13 @@ const urlCache = new cache.Cache();
 
 //endpoint to shorten url
 app.post('/api/shorturl', (req, res) => {
-  const originalUrl = req.body.originalUrl;
+  const original_url = req.body.original_url;
   let host;
 
 
   //use url constructor to parse the url into a url object that can be destructured
   try{
-    const urlObject = new URL(originalUrl)
+    const urlObject = new URL(original_url)
     //extract host from url
    host = urlObject.hostname;
   } catch(err) {
@@ -51,23 +51,23 @@ app.post('/api/shorturl', (req, res) => {
     if(err) {
       res.json({ error: "Invalid url"})
     } else {
-      const shortenedUrl = generateShortUrl();
+      const short_url = generateShortUrl();
 
       //store mappings in cache
-      urlCache.put(shortenedUrl, originalUrl);
-      res.json({ message: "valid url", address, shortenedUrl});
+      urlCache.put(short_url, original_url);
+      res.json({ message: "valid url", address, short_url});
     }
   });
 })
 
 
 //endpoint to redirect
-app.get('/api/shorturl/:shortenedurl', (req, res) => {
-  const shortenedUrl = req.params.shortenedurl;
-  const originalUrl = urlCache.get(shortenedUrl);
+app.get('/api/shorturl/:short_url', (req, res) => {
+  const short_url = req.params.short_url;
+  const original_url = urlCache.get(short_url);
 
-  if(originalUrl) {
-    res.redirect(originalUrl)
+  if(original_url) {
+    res.redirect(original_url)
   } else {
     res.json({error: "url not found"});
   }
