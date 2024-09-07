@@ -34,32 +34,39 @@ const urlCache = new cache.Cache();
 app.post('/api/shorturl', (req, res) => {
   const original_url = req.body.original_url;
   let host;
-
-
-  //use url constructor to parse the url into a url object that can be destructured
-  try{
-    const urlObject = new URL(original_url)
-    //extract host from url
-   host = urlObject.hostname;
-  } catch(err) {
-    res.json({ err: "Not a valid url"})
-  }
   
 
-  //verify url using dns lookup
-  dns.lookup(host, (err, address) => {
-    if(err) {
-      res.json({ error: "Invalid url"})
-    } else {
+  // Use URL constructor to parse the URL into an object
+  try {
+    const urlObject = new URL(original_url);
+    
+    // Ensure the protocol is either http or https
+    if (urlObject.protocol === 'http:' || urlObject.protocol === 'https:') {
+      host = urlObject.hostname;
+      
+      // Generate short URL
       const short_url = generateShortUrl();
 
-      //store mappings in cache
+      // Store the mapping in cache (or memory)
       urlCache.put(short_url, original_url);
-      res.json({ message: "valid url", address, short_url});
+      
+      // Return the original and shortened URLs
+      res.json({ original_url, short_url });
+    } else {
+      res.json({ error: "Invalid URL: protocol must be http or https" });
     }
-  });
-})
+    
+  } catch(err) {
+    // Catch invalid URL errors from URL constructor
+    res.json({ error: "Not a valid URL" });
+  }
+});
 
+
+  
+  
+
+ 
 
 //endpoint to redirect
 app.get('/api/shorturl/:short_url', (req, res) => {
