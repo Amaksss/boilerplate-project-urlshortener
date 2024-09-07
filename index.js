@@ -33,19 +33,24 @@ const urlCache = new cache.Cache();
 //endpoint to shorten url
 app.post('/api/shorturl', (req, res) => {
   const original_url = req.body.original_url;
+  console.log('Received URL:', original_url); // Log just the URL
   let host;
   
 
   // Use URL constructor to parse the URL into an object
   try {
     const urlObject = new URL(original_url);
+    console.log('URL Object:', urlObject); // Log the parsed URL object
     
     // Ensure the protocol is either http or https
     if (urlObject.protocol === 'http:' || urlObject.protocol === 'https:') {
       host = urlObject.hostname;
+      console.log('Extracted Host:', host); // Log the extracted host
       
       // Generate short URL
       const short_url = generateShortUrl();
+      console.log('Generated Short URL:', short_url); // Log the generated short URL
+
 
       // Store the mapping in cache (or memory)
       urlCache.put(short_url, original_url);
@@ -58,6 +63,7 @@ app.post('/api/shorturl', (req, res) => {
     
   } catch(err) {
     // Catch invalid URL errors from URL constructor
+    console.log('Error:', err.message); // Log error message
     res.json({ error: "Not a valid URL" });
   }
 });
