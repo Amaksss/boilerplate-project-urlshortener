@@ -55,8 +55,7 @@ app.post('/api/shorturl', (req, res) => {
 
       // Store the mapping in cache (or memory)
       urlCache.put(short_url, original_url);
-      
-      // Return the original and shortened URLs
+
       res.json({ original_url, short_url });
     } else {
       res.json({ error: "invalid url" });
