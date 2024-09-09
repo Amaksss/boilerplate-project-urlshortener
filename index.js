@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://amakaorabuchi:g3bNkOcbY80UpEmB@cluster0.1u3ya.mongodb.net/urlShortener?retryWrites=true&w=majority&appName=Cluster0', {
-
+ 
 });
 
 const db = mongoose.connection;
@@ -17,7 +17,6 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
   console.log('Connected to MongoDB');
 });
-
 
 
 // Define Schema and Model
@@ -88,17 +87,31 @@ app.post('/api/shorturl', async (req, res) => {
 
  
 
-//endpoint to redirect
+// Endpoint to redirect to the original URL
 app.get('/api/shorturl/:short_url', async (req, res) => {
-  const short_url = req.params.short_url
-  const url = await Url.findOne({ short_url })
+  // Ensure short_url is cast to a number
+  const short_url = parseInt(req.params.short_url);
 
-  if(url) {
-    res.redirect(url.original_url)
-  } else {
-    res.json({error: "url not found"});
+  // Check if short_url is a valid number
+  if (isNaN(short_url)) {
+    return res.json({ error: "Invalid short URL" });
   }
-})
+
+  try {
+    // Find the original URL corresponding to the short_url
+    const url = await Url.findOne({ short_url });
+
+    if (url) {
+      // Redirect to the original URL
+      res.redirect(url.original_url);
+    } else {
+      res.json({ error: "URL not found" });
+    }
+  } catch (err) {
+    console.log('Error:', err.message);
+    res.json({ error: "Something went wrong" });
+  }
+});
 
 
 /*function generateShortUrl () {
