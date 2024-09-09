@@ -59,13 +59,13 @@ app.post('/api/shorturl', (req, res) => {
       // Return the original and shortened URLs
       res.json({ original_url, short_url });
     } else {
-      res.json({ error: "Invalid URL: protocol must be http or https" });
+      res.json({ error: "invalid url" });
     }
     
   } catch(err) {
     // Catch invalid URL errors from URL constructor
     console.log('Error:', err.message); // Log error message
-    res.json({ error: "Not a valid URL" });
+    res.json({ error: "invalid url" });
   }
 });
 
