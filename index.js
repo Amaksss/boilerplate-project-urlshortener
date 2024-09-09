@@ -5,6 +5,30 @@ const cors = require('cors');
 const app = express();
 const dns = require('dns');
 const cache = require('memory-cache');
+const mongoose = require('mongoose');
+
+// Connect to MongoDB
+mongoose.connect('mongodb+srv://amakaorabuchi:g3bNkOcbY80UpEmB@cluster0.1u3ya.mongodb.net/urlShortener?retryWrites=true&w=majority&appName=Cluster0', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', () => {
+  console.log('Connected to MongoDB');
+});
+
+
+
+// Define Schema and Model
+const urlSchema = new mongoose.Schema({
+  original_url: String,
+  short_url: Number
+});
+
+const Url = mongoose.model('Url', urlSchema);
+
 
 // Basic Configuration
 const port = process.env.PORT || 3002;
@@ -20,58 +44,44 @@ app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
-// Your first API endpoint
-app.get('/api/hello', function(req, res) {
-  res.json({ greeting: 'hello API' });
-});
 
 
-//store url mappings
-const urlCache = new cache.Cache();
+
+
 
 
 
 //endpoint to shorten url
-app.post('/api/shorturl', (req, res) => {
+app.post('/api/shorturl', async (req, res) => {
   const original_url = req.body.original_url;
-  console.log('Received URL:', original_url); // Log just the URL
-  let host;
-  // Initialize a counter for short URLs
-  let urlCounter = 1;
-  
+  console.log('Received URL:', original_url);
 
-  // Use URL constructor to parse the URL into an object
   try {
     const urlObject = new URL(original_url);
-    console.log('URL Object:', urlObject); // Log the parsed URL object
-    
-    // Ensure the protocol is either http or https
     if (urlObject.protocol === 'http:' || urlObject.protocol === 'https:') {
-      const short_url = urlCounter++;
-      host = urlObject.hostname;
-      console.log('Extracted Host:', host); // Log the extracted host
-      
-      /*// Generate short URL
-      const short_url = generateShortUrl();
-      console.log('Generated Short URL:', short_url); // Log the generated short URL*/
+      const urlCount = await Url.countDocuments(); // Count documents to generate sequential short URL
+      const short_url = urlCount + 1;
 
-      
-
-
-      // Store the mapping in cache (or memory)
-      urlCache.put(short_url, original_url);
+      // Create a new URL document
+      const url = new Url({ original_url, short_url });
+      await url.save();
 
       res.json({ original_url, short_url });
     } else {
       res.json({ error: "invalid url" });
     }
-    
-  } catch(err) {
-    // Catch invalid URL errors from URL constructor
-    console.log('Error:', err.message); // Log error message
+  } catch (err) {
+    console.log('Error:', err.message);
     res.json({ error: "invalid url" });
   }
 });
+  
+
+  
+
+      
+
+
 
 
   
@@ -80,12 +90,12 @@ app.post('/api/shorturl', (req, res) => {
  
 
 //endpoint to redirect
-app.get('/api/shorturl/:short_url', (req, res) => {
-  const short_url = parseInt(req.params.short_url, 10); // Convert to number
-  const original_url = urlCache.get(short_url);
+app.get('/api/shorturl/:short_url', async (req, res) => {
+  const short_url = req.params.short_url
+  const url = await Url.findOne({ short_url })
 
-  if(original_url) {
-    res.redirect(original_url)
+  if(url) {
+    res.redirect(url.original_url)
   } else {
     res.json({error: "url not found"});
   }
