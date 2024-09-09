@@ -11,6 +11,7 @@ const port = process.env.PORT || 3002;
 
 // Use body-parser to parse JSON bodies
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use('/public', express.static(`${process.cwd()}/public`));
