@@ -89,13 +89,13 @@ app.get('/api/shorturl/:short_url', (req, res) => {
 
 
 function generateShortUrl () {
-  const num = '1234567890';
-  const length = 7;
-  let shortUrl = '';
+  const num = '1234567890'; // Digits to pick from
+  const length = 7; // Desired length of the short URL
+  let shortUrl = 0; // Initialize as a number
 
   for (i = 0; i < length; i++) {
     const randomNum = Math.floor(Math.random() * num.length);
-    shortUrl += num[randomNum];
+    shortUrl = shortUrl * 10 + parseInt(num[randomNum]);
   }
   return shortUrl;
 }
