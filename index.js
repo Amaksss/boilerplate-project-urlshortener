@@ -9,8 +9,7 @@ const mongoose = require('mongoose');
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://amakaorabuchi:g3bNkOcbY80UpEmB@cluster0.1u3ya.mongodb.net/urlShortener?retryWrites=true&w=majority&appName=Cluster0', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+
 });
 
 const db = mongoose.connection;
