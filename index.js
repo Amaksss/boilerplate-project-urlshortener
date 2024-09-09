@@ -81,7 +81,7 @@ app.post('/api/shorturl', (req, res) => {
 
 //endpoint to redirect
 app.get('/api/shorturl/:short_url', (req, res) => {
-  const short_url = req.params.short_url;
+  const short_url = parseInt(req.params.short_url, 10); // Convert to number
   const original_url = urlCache.get(short_url);
 
   if(original_url) {
@@ -92,7 +92,7 @@ app.get('/api/shorturl/:short_url', (req, res) => {
 })
 
 
-function generateShortUrl () {
+/*function generateShortUrl () {
   const num = '1234567890'; // Digits to pick from
   const length = 7; // Desired length of the short URL
   let shortUrl = 0; // Initialize as a number
@@ -102,7 +102,7 @@ function generateShortUrl () {
     shortUrl = shortUrl * 10 + parseInt(num[randomNum]);
   }
   return shortUrl;
-}
+}*/
 
 
 app.listen(port, function() {
